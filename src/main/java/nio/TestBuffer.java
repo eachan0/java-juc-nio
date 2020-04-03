@@ -109,4 +109,10 @@ public class TestBuffer {
             System.out.println(byteBuffer.remaining());
         }
     }
+
+    @Test
+    public void test3(){
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
+        System.out.println(byteBuffer.isDirect());
+    }
 }
