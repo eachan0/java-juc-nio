@@ -37,12 +37,19 @@ public class TestBlockingIO {
 
     @Test
     public void client() throws IOException {
+
+        //获取客户端通道
         SocketChannel cChannel = SocketChannel.open(new InetSocketAddress("127.0.0.1", 9898));
-        FileChannel fileChannel = FileChannel.open(Path.of("1.jpg"), StandardOpenOption.READ);
+
+        //分配缓冲区
         ByteBuffer buffer = ByteBuffer.allocate(1024);
 
+        // 读取本地文件
+        FileChannel fileChannel = FileChannel.open(Path.of("1.jpg"), StandardOpenOption.READ);
         while (fileChannel.read(buffer) != -1) {
             buffer.flip();
+
+            // 发送给服务端
             cChannel.write(buffer);
             buffer.clear();
         }
@@ -52,22 +59,28 @@ public class TestBlockingIO {
 
     @Test
     public void server() throws IOException {
+
+        // 获取服务端通道
         ServerSocketChannel sChannel = ServerSocketChannel.open();
 
-        FileChannel fileChannel = FileChannel.open(Path.of("6.jpg"), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
-
+        // 绑定端口
         sChannel.bind(new InetSocketAddress(9898));
 
+        // 等待并获取客户端通道
         SocketChannel cChannel = sChannel.accept();
 
+        // 分配缓冲区
         ByteBuffer buffer = ByteBuffer.allocate(1024);
 
+        // 接收数据保存
+        FileChannel fileChannel = FileChannel.open(Path.of("6.jpg"), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
         while (cChannel.read(buffer) != -1) {
             buffer.flip();
             fileChannel.write(buffer);
             buffer.clear();
         }
 
+        // 关闭通道
         sChannel.close();
         cChannel.close();
         fileChannel.close();
